@@ -36,12 +36,12 @@ This guide will help you deploy the Live Polling System to various platforms.
 
 2. **Deploy to Netlify**:
    - Go to [netlify.com](https://netlify.com)
-   - Drag and drop the `frontend/build` folder
+   - Drag and drop the `frontend/dist` folder (Vite outputs to `dist`)
    - Or connect your GitHub repository
 
 3. **Configure**:
    - Build command: `npm run build`
-   - Publish directory: `build`
+   - Publish directory: `dist` (Vite outputs to `dist`)
    - Base directory: `frontend`
 
 ## 🔧 Backend Deployment
@@ -131,8 +131,9 @@ This guide will help you deploy the Live Polling System to various platforms.
 - **Static files not loading**: Check build output directory
 - **Vercel "No Output Directory" error**: 
   - Ensure `vercel.json` is in the root directory
-  - Check that `outputDirectory` is set to `frontend/build`
+  - Check that `outputDirectory` is set to `frontend/dist` (for Vite) or `frontend/build` (for CRA)
   - Verify the build command runs successfully locally
+  - For Vite projects, the output directory is `dist`, not `build`
 
 ### Backend Issues
 - **Port binding error**: Ensure `PORT` environment variable is set

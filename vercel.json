@@ -1,9 +1,9 @@
 {
   "version": 2,
   "buildCommand": "cd frontend && npm run build",
-  "outputDirectory": "frontend/build",
+  "outputDirectory": "frontend/dist",
   "installCommand": "cd frontend && npm install",
-  "framework": "create-react-app",
+  "framework": "vite",
   "routes": [
     {
       "src": "/(.*)",

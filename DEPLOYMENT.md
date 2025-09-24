@@ -24,7 +24,7 @@ This guide will help you deploy the Live Polling System to various platforms.
      - Output Directory: `build`
 
 3. **Environment Variables** (if needed):
-   - Add `REACT_APP_BACKEND_URL` pointing to your backend URL
+   - Add `VITE_BACKEND_URL` pointing to your backend URL
 
 ### Option 2: Netlify
 
@@ -95,17 +95,17 @@ This guide will help you deploy the Live Polling System to various platforms.
 
 ### Update Frontend Socket Connection
 
-1. **For Production**, update the socket connection in `frontend/src/socket.js`:
+1. **For Production**, your socket connection is already configured in `frontend/src/socket.js`:
    ```javascript
    import { io } from 'socket.io-client';
+   import { BACKEND_URL } from './api/config.js';
    
-   const socket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001');
-   
+   const socket = io(BACKEND_URL);
    export default socket;
    ```
 
 2. **Set Environment Variable**:
-   - In Vercel/Netlify: Add `REACT_APP_BACKEND_URL` with your backend URL
+   - In Vercel/Netlify: Add `VITE_BACKEND_URL` with your backend URL
    - Example: `https://your-backend.railway.app`
 
 ## 📋 Deployment Checklist
@@ -153,7 +153,7 @@ This guide will help you deploy the Live Polling System to various platforms.
 
 ### Frontend (.env)
 ```env
-REACT_APP_BACKEND_URL=https://your-backend-url.com
+VITE_BACKEND_URL=https://your-backend-url.com
 ```
 
 ### Backend (.env)

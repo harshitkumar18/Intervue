@@ -16,7 +16,8 @@ This guide will help you deploy the Live Polling System to various platforms.
 2. **Deploy to Vercel**:
    - Go to [vercel.com](https://vercel.com)
    - Import your GitHub repository
-   - Set build settings:
+   - **Important**: The `vercel.json` file is already configured, so Vercel should auto-detect the settings
+   - If manual configuration is needed:
      - Framework Preset: `Create React App`
      - Root Directory: `frontend`
      - Build Command: `npm run build`
@@ -128,6 +129,10 @@ This guide will help you deploy the Live Polling System to various platforms.
 - **Build fails**: Check Node.js version (use 18+)
 - **Socket connection fails**: Verify backend URL in environment variables
 - **Static files not loading**: Check build output directory
+- **Vercel "No Output Directory" error**: 
+  - Ensure `vercel.json` is in the root directory
+  - Check that `outputDirectory` is set to `frontend/build`
+  - Verify the build command runs successfully locally
 
 ### Backend Issues
 - **Port binding error**: Ensure `PORT` environment variable is set

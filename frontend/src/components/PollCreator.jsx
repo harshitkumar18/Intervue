@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 
-const PollCreator = ({ onCreate, onCancel, teacherCanAskNew, hasJoined }) => {
+const PollCreator = ({ onCreate, onCancel, teacherCanAskNew, hasJoined, socketConnected }) => {
   const [question, setQuestion] = useState('');
   const [timeLimit, setTimeLimit] = useState(60);
   const [showTimerDropdown, setShowTimerDropdown] = useState(false);
@@ -493,7 +493,23 @@ const PollCreator = ({ onCreate, onCancel, teacherCanAskNew, hasJoined }) => {
       {/* Ask Question Button */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: 48 }}>
         {/* Connection Status */}
-        {!hasJoined && (
+        {!socketConnected && (
+          <div style={{ 
+            marginBottom: 16, 
+            padding: '12px 16px', 
+            background: '#fef2f2', 
+            border: '1px solid #ef4444', 
+            borderRadius: 8,
+            color: '#dc2626',
+            fontSize: 14,
+            maxWidth: '400px',
+            textAlign: 'center'
+          }}>
+            ❌ Not connected to server. Please refresh the page.
+          </div>
+        )}
+        
+        {socketConnected && !hasJoined && (
           <div style={{ 
             marginBottom: 16, 
             padding: '12px 16px', 
@@ -549,33 +565,33 @@ const PollCreator = ({ onCreate, onCancel, teacherCanAskNew, hasJoined }) => {
         
         <button
           onClick={handleCreate}
-          disabled={!teacherCanAskNew?.canAsk || !hasJoined}
+          disabled={!teacherCanAskNew?.canAsk || !hasJoined || !socketConnected}
           style={{
-            background: (teacherCanAskNew?.canAsk && hasJoined)
+            background: (teacherCanAskNew?.canAsk && hasJoined && socketConnected)
               ? 'linear-gradient(135deg, #7565D9 0%, #4D0ACD 100%)' 
               : '#9ca3af',
             color: '#fff',
             border: 'none',
             padding: '12px 32px',
             borderRadius: 20,
-            cursor: (teacherCanAskNew?.canAsk && hasJoined) ? 'pointer' : 'not-allowed',
+            cursor: (teacherCanAskNew?.canAsk && hasJoined && socketConnected) ? 'pointer' : 'not-allowed',
             fontSize: 18,
             fontWeight: 500,
             transition: 'all 0.2s',
-            opacity: (teacherCanAskNew?.canAsk && hasJoined) ? 1 : 0.6
+            opacity: (teacherCanAskNew?.canAsk && hasJoined && socketConnected) ? 1 : 0.6
           }}
           onMouseEnter={(e) => {
-            if (teacherCanAskNew?.canAsk && hasJoined) {
+            if (teacherCanAskNew?.canAsk && hasJoined && socketConnected) {
               e.target.style.background = 'linear-gradient(135deg, #6854C8 0%, #3C0ABC 100%)';
             }
           }}
           onMouseLeave={(e) => {
-            if (teacherCanAskNew?.canAsk && hasJoined) {
+            if (teacherCanAskNew?.canAsk && hasJoined && socketConnected) {
               e.target.style.background = 'linear-gradient(135deg, #7565D9 0%, #4D0ACD 100%)';
             }
           }}
         >
-          {!hasJoined ? 'Connecting...' : 'Ask Question'}
+          {!socketConnected ? 'Not Connected' : !hasJoined ? 'Connecting...' : 'Ask Question'}
         </button>
       </div>
     </div>

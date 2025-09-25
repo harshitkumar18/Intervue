@@ -52,17 +52,24 @@ function App() {
   const [selectedRole, setSelectedRole] = useState(null);
   const [hasJoined, setHasJoined] = useState(false);
   const [teacherCanAskNew, setTeacherCanAskNew] = useState({ canAsk: true, reason: 'No active poll' });
+  const [socketConnected, setSocketConnected] = useState(false);
 
   // Initialize socket listeners
   useEffect(() => {
     // Handle socket connection
     socket.on('connect', () => {
       console.log('Socket connected:', socket.id);
+      setSocketConnected(true);
       // Only auto-rejoin if user has explicitly selected a role (not null)
       if (name && isTeacher !== null && hasJoined) {
         console.log('Rejoining session:', { name, isTeacher, socketId: socket.id });
         socket.emit('user:join', { name: name.trim(), isTeacher });
       }
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Socket disconnected');
+      setSocketConnected(false);
     });
 
     socket.on('user:joined', (user) => {
@@ -276,7 +283,21 @@ function App() {
       
       if (!socket.connected) {
         console.error('Socket not connected when trying to join!');
-        alert('Connection lost. Please refresh the page.');
+        console.log('Attempting to reconnect socket...');
+        
+        // Try to reconnect the socket
+        socket.connect();
+        
+        // Wait a bit for connection to establish
+        setTimeout(() => {
+          if (socket.connected) {
+            console.log('Socket reconnected, now joining...');
+            socket.emit('user:join', { name: name.trim(), isTeacher });
+          } else {
+            console.error('Socket still not connected after retry');
+            alert('Connection lost. Please refresh the page.');
+          }
+        }, 1000);
         return;
       }
       
@@ -533,6 +554,16 @@ function App() {
   if (screen === SCREENS.welcome) {
     return (
       <div className="min-h-screen bg-[#ffffff] flex flex-col items-center justify-center p-6">
+        {/* Connection Status Indicator */}
+        <div className="fixed top-4 right-4 z-50">
+          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+            socketConnected 
+              ? 'bg-green-100 text-green-800' 
+              : 'bg-red-100 text-red-800'
+          }`}>
+            {socketConnected ? '🟢 Connected' : '🔴 Disconnected'}
+          </div>
+        </div>
         <div className="w-full max-w-4xl mx-auto text-center space-y-8">
           {/* Badge */}
           <div className="flex justify-center">
@@ -628,6 +659,16 @@ function App() {
   if (screen === SCREENS.getStarted && isTeacher !== null) {
     return (
       <div className="min-h-screen bg-[#ffffff] flex items-center justify-center p-4">
+        {/* Connection Status Indicator */}
+        <div className="fixed top-4 right-4 z-50">
+          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+            socketConnected 
+              ? 'bg-green-100 text-green-800' 
+              : 'bg-red-100 text-red-800'
+          }`}>
+            {socketConnected ? '🟢 Connected' : '🔴 Disconnected'}
+          </div>
+        </div>
         <div className="w-full max-w-md mx-auto text-center space-y-8">
           {/* Intervue Poll Badge */}
           <div className="flex justify-center">
@@ -1019,6 +1060,7 @@ function App() {
             onViewHistory={() => setScreen(SCREENS.history)}
             teacherCanAskNew={teacherCanAskNew}
             hasJoined={hasJoined}
+            socketConnected={socketConnected}
           />
         ) : (
           <TeacherResults 

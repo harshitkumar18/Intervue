@@ -4,12 +4,22 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 require('dotenv').config();
 
+// Define allowed origins for CORS
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://intervue122.vercel.app",
+  "https://intervue122.vercel.app/", // With trailing slash
+  process.env.FRONTEND_ORIGIN
+].filter(Boolean);
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173",
-    methods: ["GET", "POST"]
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
@@ -55,7 +65,8 @@ function canTeacherAskNewQuestion() {
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173"
+  origin: allowedOrigins,
+  credentials: true
 }));
 app.use(express.json());
 

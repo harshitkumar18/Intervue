@@ -544,7 +544,15 @@ function App() {
           onClick={() => setShowChatPanel(!showChatPanel)} 
           className="w-14 h-14 bg-[#6766d5] hover:bg-[#5a66d1] rounded-full shadow-lg transition-colors flex items-center justify-center"
         >
-          <img src="./chat.png" alt="Chat" className="w-6 h-6 brightness-0 invert" />
+          <img 
+            src="./chat.png" 
+            alt="Chat" 
+            className="w-6 h-6 brightness-0 invert object-contain" 
+            onError={(e) => {
+              console.error('Failed to load chat.png');
+              e.target.style.display = 'none';
+            }}
+          />
         </button>
       </div>
     );
@@ -571,7 +579,11 @@ function App() {
               <img 
                 src="./Vector (1).png" 
                 alt="Intervue Poll" 
-                className="w-4 h-4 brightness-0 invert" 
+                className="w-4 h-4 brightness-0 invert object-contain" 
+                onError={(e) => {
+                  console.error('Failed to load Vector (1).png');
+                  e.target.style.display = 'none';
+                }}
               />
               Intervue Poll
             </div>
@@ -676,7 +688,11 @@ function App() {
               <img 
                 src="./Vector (1).png" 
                 alt="Intervue Poll" 
-                className="w-4 h-4 brightness-0 invert" 
+                className="w-4 h-4 brightness-0 invert object-contain" 
+                onError={(e) => {
+                  console.error('Failed to load Vector (1).png');
+                  e.target.style.display = 'none';
+                }}
               />
               Intervue Poll
             </div>
@@ -755,7 +771,11 @@ function App() {
               <img 
                 src="./Vector (1).png" 
                 alt="Intervue Poll" 
-                className="w-4 h-4 brightness-0 invert" 
+                className="w-4 h-4 brightness-0 invert object-contain" 
+                onError={(e) => {
+                  console.error('Failed to load Vector (1).png');
+                  e.target.style.display = 'none';
+                }}
               />
               Intervue Poll
             </div>
@@ -790,7 +810,15 @@ function App() {
             <div className="flex items-center justify-center gap-4">
               <h1 className="text-2xl font-semibold text-[#2e2e2e]">Question {currentQuestionNumber}</h1>
                 <div className="flex items-center gap-2">
-                  <img src="./Timer.png" alt="Timer" className="w-4 h-4" />
+                  <img 
+                    src="./Timer.png" 
+                    alt="Timer" 
+                    className="w-4 h-4 object-contain" 
+                    onError={(e) => {
+                      console.error('Failed to load Timer.png');
+                      e.target.style.display = 'none';
+                    }}
+                  />
                   <span className="text-[#cb1206] font-medium">{formatTime(timeLeft)}</span>
                 </div>
             </div>
@@ -872,7 +900,15 @@ function App() {
           <div className="flex items-center gap-4 mb-6">
             <h1 className="text-2xl font-semibold text-[#000000]">Question {currentQuestionNumber}</h1>
               <div className="flex items-center gap-2">
-                <img src="./Timer.png" alt="Timer" className="w-5 h-5" />
+                <img 
+                  src="./Timer.png" 
+                  alt="Timer" 
+                  className="w-5 h-5 object-contain" 
+                  onError={(e) => {
+                    console.error('Failed to load Timer.png');
+                    e.target.style.display = 'none';
+                  }}
+                />
                 <span className="text-[#cb1206] font-mono text-lg">00:00</span>
               </div>
           </div>

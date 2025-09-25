@@ -106,11 +106,11 @@ const PollCreator = ({ onCreate, onCancel, teacherCanAskNew, hasJoined, socketCo
           <img 
             src="./Vector (1).png" 
             alt="Intervue Poll" 
-            style={{ 
-              width: 16, 
-              height: 16, 
-              filter: 'brightness(0) invert(1)' 
-            }} 
+            className="w-4 h-4 brightness-0 invert object-contain" 
+            onError={(e) => {
+              console.error('Failed to load Vector (1).png');
+              e.target.style.display = 'none';
+            }}
           />
           <span>Intervue Poll</span>
         </div>

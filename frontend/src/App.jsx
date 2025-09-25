@@ -67,6 +67,7 @@ function App() {
 
     socket.on('user:joined', (user) => {
       console.log('User successfully joined:', user);
+      console.log('Setting hasJoined to true');
       setHasJoined(true);
       
       // Navigate to appropriate screen after joining
@@ -279,6 +280,7 @@ function App() {
         return;
       }
       
+      console.log('Emitting user:join event:', { name: name.trim(), isTeacher });
       socket.emit('user:join', { name: name.trim(), isTeacher });
       
       // Don't navigate immediately - wait for state:init to determine the correct screen
@@ -287,6 +289,8 @@ function App() {
   };
 
   const handleCreatePoll = (pollData) => {
+    console.log('handleCreatePoll called with:', { pollData, hasJoined, isTeacher, socketConnected: socket.connected, socketId: socket.id });
+    
     // Validate that user has joined the session
     if (!hasJoined) {
       console.error('User has not joined the session yet!');
@@ -327,6 +331,7 @@ function App() {
     setCurrentQuestionNumber(optimisticPoll.sequence);
     setTeacherView('results');
     
+    console.log('Emitting teacher:create_poll event:', pollData);
     socket.emit('teacher:create_poll', pollData);
   };
 

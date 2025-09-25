@@ -99,6 +99,8 @@ io.on('connection', (socket) => {
   // Handle user joining (teacher or student)
   socket.on('user:join', ({ name, isTeacher }) => {
     console.log(`User join event received: name=${name}, isTeacher=${isTeacher}, socketId=${socket.id}`);
+    console.log(`Current participants before join:`, participants.map(p => ({ id: p.id, name: p.name, isTeacher: p.isTeacher })));
+    
     // Check if user with same name already exists (reconnection)
     const existingUserIndex = participants.findIndex(p => p.name === name);
     
@@ -132,14 +134,20 @@ io.on('connection', (socket) => {
     const teacherValidation = canTeacherAskNewQuestion();
     io.emit('teacher:validation_update', teacherValidation);
     
-    console.log('Current participants:', participants.map(p => ({ id: p.id, name: p.name, isTeacher: p.isTeacher })));
+    console.log('Current participants after join:', participants.map(p => ({ id: p.id, name: p.name, isTeacher: p.isTeacher })));
   });
 
   // Handle teacher creating a poll
   socket.on('teacher:create_poll', ({ question, options, timeLimitSec, correctOptionIds }) => {
+    console.log(`Teacher create poll event received from socket: ${socket.id}`);
+    console.log(`Current participants:`, participants.map(p => ({ id: p.id, name: p.name, isTeacher: p.isTeacher })));
+    
     // Check if teacher can create a new poll
     const teacher = participants.find(p => p.id === socket.id);
+    console.log(`Found teacher:`, teacher);
+    
     if (!teacher || !teacher.isTeacher) {
+      console.log(`Teacher validation failed: teacher=${teacher}, isTeacher=${teacher?.isTeacher}`);
       socket.emit('teacher:create_error', 'Only teachers can create polls.');
       return;
     }

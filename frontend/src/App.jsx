@@ -287,6 +287,25 @@ function App() {
   };
 
   const handleCreatePoll = (pollData) => {
+    // Validate that user has joined the session
+    if (!hasJoined) {
+      console.error('User has not joined the session yet!');
+      alert('Please wait for the session to be established before creating a poll.');
+      return;
+    }
+    
+    if (!isTeacher) {
+      console.error('Only teachers can create polls!');
+      alert('Only teachers can create polls.');
+      return;
+    }
+    
+    if (!socket.connected) {
+      console.error('Socket not connected!');
+      alert('Connection lost. Please refresh the page.');
+      return;
+    }
+    
     // Create optimistic poll data for immediate display
     const optimisticPoll = {
       id: Date.now(),
@@ -994,6 +1013,7 @@ function App() {
             onCreate={handleCreatePoll}
             onViewHistory={() => setScreen(SCREENS.history)}
             teacherCanAskNew={teacherCanAskNew}
+            hasJoined={hasJoined}
           />
         ) : (
           <TeacherResults 

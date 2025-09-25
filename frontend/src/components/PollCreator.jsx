@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 
-const PollCreator = ({ onCreate, onCancel, teacherCanAskNew }) => {
+const PollCreator = ({ onCreate, onCancel, teacherCanAskNew, hasJoined }) => {
   const [question, setQuestion] = useState('');
   const [timeLimit, setTimeLimit] = useState(60);
   const [showTimerDropdown, setShowTimerDropdown] = useState(false);
@@ -492,8 +492,25 @@ const PollCreator = ({ onCreate, onCancel, teacherCanAskNew }) => {
 
       {/* Ask Question Button */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: 48 }}>
+        {/* Connection Status */}
+        {!hasJoined && (
+          <div style={{ 
+            marginBottom: 16, 
+            padding: '12px 16px', 
+            background: '#dbeafe', 
+            border: '1px solid #3b82f6', 
+            borderRadius: 8,
+            color: '#1e40af',
+            fontSize: 14,
+            maxWidth: '400px',
+            textAlign: 'center'
+          }}>
+            🔄 Connecting to session... Please wait.
+          </div>
+        )}
+        
         {/* Validation Status */}
-        {!teacherCanAskNew?.canAsk && (
+        {hasJoined && !teacherCanAskNew?.canAsk && (
           <div style={{ 
             marginBottom: 16, 
             padding: '12px 16px', 
@@ -514,7 +531,7 @@ const PollCreator = ({ onCreate, onCancel, teacherCanAskNew }) => {
           </div>
         )}
         
-        {teacherCanAskNew?.canAsk && teacherCanAskNew?.reason !== 'No active poll' && (
+        {hasJoined && teacherCanAskNew?.canAsk && teacherCanAskNew?.reason !== 'No active poll' && (
           <div style={{ 
             marginBottom: 16, 
             padding: '12px 16px', 
@@ -532,33 +549,33 @@ const PollCreator = ({ onCreate, onCancel, teacherCanAskNew }) => {
         
         <button
           onClick={handleCreate}
-          disabled={!teacherCanAskNew?.canAsk}
+          disabled={!teacherCanAskNew?.canAsk || !hasJoined}
           style={{
-            background: teacherCanAskNew?.canAsk 
+            background: (teacherCanAskNew?.canAsk && hasJoined)
               ? 'linear-gradient(135deg, #7565D9 0%, #4D0ACD 100%)' 
               : '#9ca3af',
             color: '#fff',
             border: 'none',
             padding: '12px 32px',
             borderRadius: 20,
-            cursor: teacherCanAskNew?.canAsk ? 'pointer' : 'not-allowed',
+            cursor: (teacherCanAskNew?.canAsk && hasJoined) ? 'pointer' : 'not-allowed',
             fontSize: 18,
             fontWeight: 500,
             transition: 'all 0.2s',
-            opacity: teacherCanAskNew?.canAsk ? 1 : 0.6
+            opacity: (teacherCanAskNew?.canAsk && hasJoined) ? 1 : 0.6
           }}
           onMouseEnter={(e) => {
-            if (teacherCanAskNew?.canAsk) {
+            if (teacherCanAskNew?.canAsk && hasJoined) {
               e.target.style.background = 'linear-gradient(135deg, #6854C8 0%, #3C0ABC 100%)';
             }
           }}
           onMouseLeave={(e) => {
-            if (teacherCanAskNew?.canAsk) {
+            if (teacherCanAskNew?.canAsk && hasJoined) {
               e.target.style.background = 'linear-gradient(135deg, #7565D9 0%, #4D0ACD 100%)';
             }
           }}
         >
-          Ask Question
+          {!hasJoined ? 'Connecting...' : 'Ask Question'}
         </button>
       </div>
     </div>

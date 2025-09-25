@@ -276,12 +276,15 @@ function App() {
     setScreen(SCREENS.welcome);
   };
 
-  const handleNameSubmit = () => {
-    const nameToUse = name.trim() || (isTeacher ? "Teacher" : "");
+  const handleNameSubmit = (forceTeacher = null) => {
+    const teacherStatus = forceTeacher !== null ? forceTeacher : isTeacher;
+    const nameToUse = name.trim() || (teacherStatus ? "Teacher" : "");
     
     console.log('=== HANDLE NAME SUBMIT ===');
     console.log('name:', name);
     console.log('isTeacher:', isTeacher);
+    console.log('forceTeacher:', forceTeacher);
+    console.log('teacherStatus:', teacherStatus);
     console.log('nameToUse:', nameToUse);
     console.log('socket.connected:', socket.connected);
     console.log('socket.id:', socket.id);
@@ -291,7 +294,7 @@ function App() {
       // Save name to localStorage for this tab
       localStorage.setItem(`polling_name_${tabId}`, nameToUse);
       
-      console.log('Joining as:', { name: nameToUse, isTeacher, socketId: socket.id, connected: socket.connected, tabId });
+      console.log('Joining as:', { name: nameToUse, isTeacher: teacherStatus, socketId: socket.id, connected: socket.connected, tabId });
       
       if (!socket.connected) {
         console.error('Socket not connected when trying to join!');
@@ -304,7 +307,7 @@ function App() {
         setTimeout(() => {
           if (socket.connected) {
             console.log('Socket reconnected, now joining...');
-            socket.emit('user:join', { name: nameToUse, isTeacher });
+            socket.emit('user:join', { name: nameToUse, isTeacher: teacherStatus });
           } else {
             console.error('Socket still not connected after retry');
             alert('Connection lost. Please refresh the page.');
@@ -313,8 +316,8 @@ function App() {
         return;
       }
       
-      console.log('Emitting user:join event:', { name: nameToUse, isTeacher });
-      socket.emit('user:join', { name: nameToUse, isTeacher });
+      console.log('Emitting user:join event:', { name: nameToUse, isTeacher: teacherStatus });
+      socket.emit('user:join', { name: nameToUse, isTeacher: teacherStatus });
       
       // Don't navigate immediately - wait for state:init to determine the correct screen
       // This handles the case where user is rejoining and there might be an active poll
@@ -675,8 +678,8 @@ function App() {
                   console.log('Setting name to Teacher');
                   setName("Teacher");
                   localStorage.setItem(`polling_name_${tabId}`, "Teacher");
-                  console.log('Calling handleNameSubmit');
-                  handleNameSubmit();
+                  console.log('Calling handleNameSubmit with teacher=true');
+                  handleNameSubmit(true); // Pass teacher status directly
                   console.log('=============================');
                 }
               }}

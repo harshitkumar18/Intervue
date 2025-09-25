@@ -73,7 +73,9 @@ function App() {
     });
 
     socket.on('user:joined', (user) => {
+      console.log('=== USER JOINED EVENT ===');
       console.log('User successfully joined:', user);
+      console.log('Current state before setting hasJoined:', { isTeacher, name, socketId: socket.id });
       console.log('Setting hasJoined to true');
       setHasJoined(true);
       
@@ -277,6 +279,14 @@ function App() {
   const handleNameSubmit = () => {
     const nameToUse = name.trim() || (isTeacher ? "Teacher" : "");
     
+    console.log('=== HANDLE NAME SUBMIT ===');
+    console.log('name:', name);
+    console.log('isTeacher:', isTeacher);
+    console.log('nameToUse:', nameToUse);
+    console.log('socket.connected:', socket.connected);
+    console.log('socket.id:', socket.id);
+    console.log('========================');
+    
     if (nameToUse) {
       // Save name to localStorage for this tab
       localStorage.setItem(`polling_name_${tabId}`, nameToUse);
@@ -312,7 +322,18 @@ function App() {
   };
 
   const handleCreatePoll = (pollData) => {
-    console.log('handleCreatePoll called with:', { pollData, hasJoined, isTeacher, socketConnected: socket.connected, socketId: socket.id });
+    console.log('=== POLL CREATION DEBUG ===');
+    console.log('handleCreatePoll called with:', { 
+      pollData, 
+      hasJoined, 
+      isTeacher, 
+      socketConnected: socket.connected, 
+      socketId: socket.id,
+      name,
+      participants: participants.length
+    });
+    console.log('Current participants:', participants);
+    console.log('========================');
     
     // Validate that user has joined the session
     if (!hasJoined) {
@@ -647,11 +668,16 @@ function App() {
                   setIsTeacher(false);
                   handleGetStarted();
                 } else if (selectedRole === "teacher") {
+                  console.log('=== TEACHER ROLE SELECTED ===');
+                  console.log('Setting isTeacher to true');
                   setIsTeacher(true);
                   // For teachers, set default name and join directly
+                  console.log('Setting name to Teacher');
                   setName("Teacher");
                   localStorage.setItem(`polling_name_${tabId}`, "Teacher");
+                  console.log('Calling handleNameSubmit');
                   handleNameSubmit();
+                  console.log('=============================');
                 }
               }}
               onMouseEnter={(e) => {

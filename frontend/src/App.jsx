@@ -803,7 +803,7 @@ function App() {
                 e.target.style.background = 'linear-gradient(135deg, #7565D9 0%, #4D0ACD 100%)';
               }}
             >
-              {isTeacher ? 'Start Teaching' : (name ? 'Join Session' : 'Continue')}
+              {isTeacher ? 'Start Teaching' : (name ? 'Continue' : 'Continue')}
             </button>
           </div>
         </div>

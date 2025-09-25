@@ -36,7 +36,7 @@ function App() {
     const savedName = localStorage.getItem(`polling_name_${tabId}`);
     return savedName || '';
   });
-  const [isTeacher, setIsTeacher] = useState(false);
+  const [isTeacher, setIsTeacher] = useState(null);
   const [currentPoll, setCurrentPoll] = useState(null);
   const [history, setHistory] = useState([]);
   const [answering, setAnswering] = useState(false);
@@ -58,8 +58,8 @@ function App() {
     // Handle socket connection
     socket.on('connect', () => {
       console.log('Socket connected:', socket.id);
-      // If user has a name and role, rejoin automatically
-      if (name && (isTeacher !== null)) {
+      // Only auto-rejoin if user has explicitly selected a role (not null)
+      if (name && isTeacher !== null && hasJoined) {
         console.log('Rejoining session:', { name, isTeacher, socketId: socket.id });
         socket.emit('user:join', { name: name.trim(), isTeacher });
       }
@@ -105,8 +105,8 @@ function App() {
         setTimeLeft(0);
       }
       
-      // Only auto-navigate if user has already joined (not on welcome screen)
-      if (hasJoined) {
+      // Only auto-navigate if user has already joined and has a role
+      if (hasJoined && isTeacher !== null) {
         if (data.currentPoll && data.currentPoll.isActive) {
           if (isTeacher) {
             setScreen(SCREENS.teacher);
@@ -260,7 +260,7 @@ function App() {
   const handleBackToWelcome = () => {
     // Reset all state when going back to welcome
     setSelectedRole(null);
-    setIsTeacher(false);
+    setIsTeacher(null);
     setName('');
     setHasJoined(false);
     setScreen(SCREENS.welcome);
@@ -601,7 +601,7 @@ function App() {
   }
 
   // Get Started Screen
-  if (screen === SCREENS.getStarted) {
+  if (screen === SCREENS.getStarted && isTeacher !== null) {
     return (
       <div className="min-h-screen bg-[#ffffff] flex items-center justify-center p-4">
         <div className="w-full max-w-md mx-auto text-center space-y-8">
@@ -680,7 +680,7 @@ function App() {
   }
 
   // Waiting Screen
-  if (screen === SCREENS.waiting) {
+  if (screen === SCREENS.waiting && hasJoined) {
     return (
       <div className="min-h-screen bg-[#ffffff] flex items-center justify-center p-4">
         <div className="w-full max-w-md mx-auto text-center space-y-8">
@@ -716,7 +716,7 @@ function App() {
   }
 
   // Student Question Screen
-  if (screen === SCREENS.question && currentPoll) {
+  if (screen === SCREENS.question && currentPoll && hasJoined) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center p-8">
         <div className="w-full max-w-2xl">
@@ -797,7 +797,7 @@ function App() {
   }
 
   // Student Results Screen
-  if (screen === SCREENS.results && currentPoll) {
+  if (screen === SCREENS.results && currentPoll && hasJoined) {
     const totalResponses = Object.keys(currentPoll.responses || {}).length;
     
     return (
@@ -870,7 +870,7 @@ function App() {
   }
 
   // History Screen
-  if (screen === SCREENS.history) {
+  if (screen === SCREENS.history && hasJoined) {
     return (
       <div className="min-h-screen bg-[#f6f6f6] p-6">
         <div className="max-w-4xl mx-auto">
@@ -986,7 +986,7 @@ function App() {
   }
 
   // Teacher Screen - Keep existing functionality
-  if (screen === SCREENS.teacher) {
+  if (screen === SCREENS.teacher && hasJoined) {
     return (
       <div>
         {teacherView === 'create' ? (
@@ -1013,7 +1013,98 @@ function App() {
     );
   }
 
-  return null;
+  // Fallback to welcome screen if no other conditions are met
+  return (
+    <div className="min-h-screen bg-[#ffffff] flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-4xl mx-auto text-center space-y-8">
+        {/* Badge */}
+        <div className="flex justify-center">
+          <div className="inline-flex items-center gap-2 text-white px-4 py-2 rounded-full text-sm font-medium" style={{ background: 'linear-gradient(135deg, #7565D9 0%, #4D0ACD 100%)' }}>
+            <img 
+              src="./Vector (1).png" 
+              alt="Intervue Poll" 
+              className="w-4 h-4 brightness-0 invert" 
+            />
+            Intervue Poll
+          </div>
+        </div>
+
+        {/* Main Heading */}
+        <div className="space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-[#000000] leading-tight">
+            Welcome to the <span className="font-bold">Live Polling System</span>
+          </h1>
+          <p className="text-[#454545] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+            Please select the role that best describes you to begin using the live polling system
+          </p>
+        </div>
+
+        {/* Role Selection Cards */}
+        <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch max-w-4xl mx-auto mt-12">
+          {/* Student Card */}
+          <div
+            className={`flex-1 p-8 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
+              selectedRole === "student"
+                ? "border-[#7c3aed] bg-[#ffffff]"
+                : "border-[#d9d9d9] bg-[#ffffff] hover:border-[#7c3aed]/50"
+            }`}
+            onClick={() => setSelectedRole("student")}
+          >
+            <h3 className="text-2xl font-bold text-[#000000] mb-4 text-left">I'm a Student</h3>
+            <p className="text-[#454545] text-left leading-relaxed">
+              Lorem Ipsum is simply dummy text of the printing and typesetting industry
+            </p>
+          </div>
+
+          {/* Teacher Card */}
+          <div
+            className={`flex-1 p-8 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
+              selectedRole === "teacher"
+                ? "border-[#7c3aed] bg-[#ffffff]"
+                : "border-[#d9d9d9] bg-[#ffffff] hover:border-[#7c3aed]/50"
+            }`}
+            onClick={() => setSelectedRole("teacher")}
+          >
+            <h3 className="text-2xl font-bold text-[#000000] mb-4 text-left">I'm a Teacher</h3>
+            <p className="text-[#454545] text-left leading-relaxed">
+              Submit answers and view live poll results in real-time.
+            </p>
+          </div>
+        </div>
+
+        {/* Continue Button */}
+        <div className="pt-8">
+          <button
+            className="text-white px-12 py-4 rounded-full text-lg font-semibold transition-colors duration-200 disabled:opacity-50"
+            style={{
+              background: 'linear-gradient(135deg, #7565D9 0%, #4D0ACD 100%)'
+            }}
+            disabled={!selectedRole}
+            onClick={() => {
+              if (selectedRole === "student") {
+                setIsTeacher(false);
+              } else if (selectedRole === "teacher") {
+                setIsTeacher(true);
+              }
+              handleGetStarted();
+            }}
+            onMouseEnter={(e) => {
+              if (!e.target.disabled) {
+                e.target.style.background = 'linear-gradient(135deg, #6854C8 0%, #3C0ABC 100%)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.target.disabled) {
+                e.target.style.background = 'linear-gradient(135deg, #7565D9 0%, #4D0ACD 100%)';
+              }
+            }}
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default App;

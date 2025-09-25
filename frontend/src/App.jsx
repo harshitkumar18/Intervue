@@ -275,11 +275,13 @@ function App() {
   };
 
   const handleNameSubmit = () => {
-    if (name.trim()) {
+    const nameToUse = name.trim() || (isTeacher ? "Teacher" : "");
+    
+    if (nameToUse) {
       // Save name to localStorage for this tab
-      localStorage.setItem(`polling_name_${tabId}`, name.trim());
+      localStorage.setItem(`polling_name_${tabId}`, nameToUse);
       
-      console.log('Joining as:', { name: name.trim(), isTeacher, socketId: socket.id, connected: socket.connected, tabId });
+      console.log('Joining as:', { name: nameToUse, isTeacher, socketId: socket.id, connected: socket.connected, tabId });
       
       if (!socket.connected) {
         console.error('Socket not connected when trying to join!');
@@ -292,7 +294,7 @@ function App() {
         setTimeout(() => {
           if (socket.connected) {
             console.log('Socket reconnected, now joining...');
-            socket.emit('user:join', { name: name.trim(), isTeacher });
+            socket.emit('user:join', { name: nameToUse, isTeacher });
           } else {
             console.error('Socket still not connected after retry');
             alert('Connection lost. Please refresh the page.');
@@ -301,8 +303,8 @@ function App() {
         return;
       }
       
-      console.log('Emitting user:join event:', { name: name.trim(), isTeacher });
-      socket.emit('user:join', { name: name.trim(), isTeacher });
+      console.log('Emitting user:join event:', { name: nameToUse, isTeacher });
+      socket.emit('user:join', { name: nameToUse, isTeacher });
       
       // Don't navigate immediately - wait for state:init to determine the correct screen
       // This handles the case where user is rejoining and there might be an active poll
@@ -643,10 +645,14 @@ function App() {
               onClick={() => {
                 if (selectedRole === "student") {
                   setIsTeacher(false);
+                  handleGetStarted();
                 } else if (selectedRole === "teacher") {
                   setIsTeacher(true);
+                  // For teachers, set default name and join directly
+                  setName("Teacher");
+                  localStorage.setItem(`polling_name_${tabId}`, "Teacher");
+                  handleNameSubmit();
                 }
-                handleGetStarted();
               }}
               onMouseEnter={(e) => {
                 if (!e.target.disabled) {
@@ -703,14 +709,20 @@ function App() {
             <h1 className="text-4xl font-bold text-[#000000] text-balance">Let's Get Started</h1>
 
             <p className="text-[#5c5b5b] text-lg leading-relaxed">
-              {name ? (
+              {isTeacher ? (
+                <>
+                  As a teacher, you can{" "}
+                  <span className="font-semibold text-[#000000]">create and manage polls</span>, ask questions, and
+                  monitor your students' responses in real-time.
+                </>
+              ) : name ? (
                 <>
                   Welcome back, <span className="font-semibold text-[#000000]">{name}</span>! 
-                  {isTeacher ? ' You can create and manage polls.' : ' You can participate in live polls and submit answers.'}
+                  You can participate in live polls and submit answers.
                 </>
               ) : (
                 <>
-                  If you're a student, you'll be able to{" "}
+                  As a student, you'll be able to{" "}
                   <span className="font-semibold text-[#000000]">submit your answers</span>, participate in live polls, and
                   see how your responses compare with your classmates
                 </>
@@ -720,24 +732,34 @@ function App() {
 
           {/* Form Section */}
           <div className="space-y-6 pt-4">
-            <div className="text-left space-y-3">
-              <label htmlFor="name" className="block text-[#000000] font-medium text-base">
-                {name ? 'Your Name' : 'Enter your Name'}
-              </label>
-              <input
-                type="text"
-                id="name"
-                placeholder="Rahul Bajaj"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-4 bg-[#ffffff] border border-gray-200 rounded-lg text-[#000000] placeholder-[#5c5b5b] focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent text-base"
-              />
-              {name && (
-                <p className="text-sm text-[#6b7280]">
-                  This name is saved for this browser tab. You can change it if needed.
+            {!isTeacher && (
+              <div className="text-left space-y-3">
+                <label htmlFor="name" className="block text-[#000000] font-medium text-base">
+                  {name ? 'Your Name' : 'Enter your Name'}
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  placeholder="Rahul Bajaj"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-4 bg-[#ffffff] border border-gray-200 rounded-lg text-[#000000] placeholder-[#5c5b5b] focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent text-base"
+                />
+                {name && (
+                  <p className="text-sm text-[#6b7280]">
+                    This name is saved for this browser tab. You can change it if needed.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {isTeacher && (
+              <div className="text-center space-y-3">
+                <p className="text-[#5c5b5b] text-base">
+                  You will join as <span className="font-semibold text-[#000000]">Teacher</span>
                 </p>
-              )}
-            </div>
+              </div>
+            )}
 
             <button
               onClick={handleNameSubmit}
@@ -752,7 +774,7 @@ function App() {
                 e.target.style.background = 'linear-gradient(135deg, #7565D9 0%, #4D0ACD 100%)';
               }}
             >
-              {name ? 'Join Session' : 'Continue'}
+              {isTeacher ? 'Start Teaching' : (name ? 'Join Session' : 'Continue')}
             </button>
           </div>
         </div>

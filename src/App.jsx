@@ -277,6 +277,11 @@ function App() {
   };
 
   const handleNameSubmit = (forceTeacher = null) => {
+    // Handle case where event object is passed instead of boolean
+    if (forceTeacher && typeof forceTeacher === 'object' && forceTeacher.type === 'click') {
+      forceTeacher = null;
+    }
+    
     const teacherStatus = forceTeacher !== null ? forceTeacher : isTeacher;
     const nameToUse = name.trim() || (teacherStatus ? "Teacher" : "");
     
@@ -791,7 +796,7 @@ function App() {
             )}
 
             <button
-              onClick={handleNameSubmit}
+              onClick={() => handleNameSubmit()}
               className="text-white px-12 py-4 rounded-full text-lg font-semibold transition-colors duration-200"
               style={{
                 background: 'linear-gradient(135deg, #7565D9 0%, #4D0ACD 100%)'
